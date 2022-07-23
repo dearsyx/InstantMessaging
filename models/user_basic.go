@@ -1,8 +1,13 @@
 package models
 
+import (
+	"context"
+	"go.mongodb.org/mongo-driver/bson"
+)
+
 type UserBasic struct {
 	Identity  string `bson:"_id"`
-	UserID    string `bson:"user_id"`
+	Account   string `bson:"account"`
 	Username  string `bson:"username"`
 	Password  string `bson:"password"`
 	Avatar    string `bson:"avatar"`
@@ -14,4 +19,19 @@ type UserBasic struct {
 
 func (*UserBasic) CollectionName() string {
 	return "user_basic"
+}
+
+func NewUserBasic() *UserBasic {
+	return &UserBasic{}
+}
+
+func GetUserByAccountPassword(account, password string) (*UserBasic, error) {
+	user := NewUserBasic()
+	err := Mongo.Collection(user.CollectionName()).FindOne(
+		context.Background(), bson.D{
+			{"account", account},
+			{"password", password},
+		},
+	).Decode(user)
+	return user, err
 }
