@@ -6,8 +6,7 @@ import (
 )
 
 type UserBasic struct {
-	Identity  string `bson:"_id"`
-	Account   string `bson:"account"`
+	Identity  string `bson:"identity"`
 	Username  string `bson:"username"`
 	Password  string `bson:"password"`
 	Avatar    string `bson:"avatar"`
@@ -33,7 +32,7 @@ func GetUserByAccountPassword(account, password string) (*UserBasic, error) {
 	user := NewUserBasic()
 	err := Mongo.Collection(user.CollectionName()).FindOne(
 		context.Background(), bson.D{
-			{"account", account},
+			{"identity", account},
 			{"password", password},
 		},
 	).Decode(user)

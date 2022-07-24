@@ -15,7 +15,10 @@ func Router() *gin.Engine {
 	// 用户信息
 	rg := r.Group("/user", middleware.AuthLoginCheck())
 	{
+		// 用户详细信息
 		rg.GET("/detail", service.UserDetail)
+		// 发送和接收消息
+		rg.GET("/message", service.WebsocketMessage)
 	}
 	return r
 }

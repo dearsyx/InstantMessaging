@@ -30,3 +30,32 @@ func TestMongoFindOne(t *testing.T) {
 	}
 	t.Log(*user)
 }
+
+func TestMongoFind(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().
+		SetAuth(options.Credential{
+			Username: "admin",
+			Password: "123456",
+		}).
+		ApplyURI("mongodb://127.0.0.1:27017"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	db := client.Database("instant_messaging")
+	cursor, err := db.Collection("user_room").Find(context.Background(), bson.D{
+		{"room_identity", "room_identity"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for cursor.Next(context.Background()) {
+		ub := new(models.UserRoom)
+		err := cursor.Decode(ub)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(*ub)
+	}
+}
