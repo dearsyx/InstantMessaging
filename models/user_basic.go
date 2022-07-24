@@ -21,6 +21,10 @@ func (*UserBasic) CollectionName() string {
 	return "user_basic"
 }
 
+func CollectName() string {
+	return "user_basic"
+}
+
 func NewUserBasic() *UserBasic {
 	return &UserBasic{}
 }
@@ -44,4 +48,11 @@ func GetUserByIdentity(identity string) (*UserBasic, error) {
 		},
 	).Decode(user)
 	return user, err
+}
+
+// GetUserByEmail 查看使用该邮箱的用户个数
+func GetUserByEmail(email string) (int64, error) {
+	return Mongo.Collection(CollectName()).CountDocuments(context.Background(), bson.D{
+		{"email", email},
+	})
 }

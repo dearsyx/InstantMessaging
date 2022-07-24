@@ -2,10 +2,12 @@ package service
 
 import (
 	"code.project.com/InstantMessaging/models"
+	"code.project.com/InstantMessaging/pkg/email"
 	"code.project.com/InstantMessaging/pkg/token"
 	"code.project.com/InstantMessaging/pkg/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"log"
 	"net/http"
 )
@@ -45,6 +47,49 @@ func UserLogin(c *gin.Context) {
 		"data": gin.H{
 			"token": tokenString,
 		},
+	})
+	return
+}
+
+// SendCode 发送邮箱验证码
+func SendCode(c *gin.Context) {
+	userEmail := c.PostForm("email")
+	if userEmail == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "邮箱不能为空",
+		})
+		return
+	}
+	// 通过邮箱找用户
+	count, err := models.GetUserByEmail(userEmail)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  errors.Errorf("[DB ERROR]:%s", err),
+		})
+		return
+	}
+	// 如果count不为0，说明邮箱已经被注册
+	if count > 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "邮箱已被注册",
+		})
+		return
+	}
+	// count为0，使用该邮箱注册，向该邮箱发送验证码
+	err = email.SendEmailCode(userEmail, "DJC7Q9")
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "系统错误:" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "验证码发送成功",
 	})
 	return
 }
