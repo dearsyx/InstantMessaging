@@ -35,3 +35,13 @@ func GetUserByAccountPassword(account, password string) (*UserBasic, error) {
 	).Decode(user)
 	return user, err
 }
+
+func GetUserByIdentity(identity string) (*UserBasic, error) {
+	user := NewUserBasic()
+	err := Mongo.Collection(user.CollectionName()).FindOne(
+		context.Background(), bson.D{
+			{"_id", identity},
+		},
+	).Decode(user)
+	return user, err
+}

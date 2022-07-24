@@ -8,15 +8,17 @@ import (
 var tokenKey = []byte("ch6tf2wI39TuHQ74CmAMO9JkNlY8KDNq")
 
 type UserClaims struct {
-	Identity string `json:"identity"`
+	UserID   string `json:"user_id"`
+	Username string `json:"username"`
 	Email    string `json:"email"`
 	jwt.StandardClaims
 }
 
 // GenerateToken 生成token
-func GenerateToken(identity, email string) (string, error) {
+func GenerateToken(userid, username, email string) (string, error) {
 	userClaim := &UserClaims{
-		Identity:       identity,
+		UserID:         userid,
+		Username:       username,
 		Email:          email,
 		StandardClaims: jwt.StandardClaims{},
 	}
